@@ -1,0 +1,69 @@
+{
+  "colors": {
+    "brand": {
+      "50": "#FFF5F2",
+      "100": "#FFEAE3",
+      "200": "#FFC5B5",
+      "300": "#FF977D",
+      "400": "#FF7150",
+      "500": "#FF5A36",
+      "600": "#E04822",
+      "700": "#B83313",
+      "800": "#91250B",
+      "900": "#701A05"
+    },
+    "dark": {
+      "50": "#FFFFFF",
+      "100": "#F1F1F4",
+      "200": "#AEA99D",
+      "300": "#4B5675",
+      "400": "#252F4A",
+      "500": "#201C17",
+      "700": "#171717",
+      "800": "#111111",
+      "900": "#0D0E25"
+    },
+    "grey": {
+      "50": "#F9FAFC",
+      "100": "#F1F1F4",
+      "200": "#EAEAEA",
+      "300": "#D8D8D8",
+      "400": "#99A1B7",
+      "500": "#666660",
+      "600": "#4B5675"
+    },
+    "surface": {
+      "light": "#FFFFFF",
+      "cream": "#EFECE5",
+      "beige": "#E8E5DD",
+      "heroBg": "#0D0E25"
+    },
+    "status": {
+      "success": "#17C653",
+      "successBg": "#EAFFF1",
+      "warning": "#FFB300",
+      "danger": "#FF3B30"
+    }
+  },
+  "typography": {
+    "fontFamilies": {
+      "sans": ["Google Sans Flex", "Google Sans", "Inter", "sans-serif"]
+    }
+  },
+  "borderRadius": {
+    "xs": "4px",
+    "sm": "6px",
+    "md": "8px",
+    "lg": "12px",
+    "xl": "16px",
+    "2xl": "20px",
+    "3xl": "28px",
+    "full": "9999px"
+  },
+  "shadows": {
+    "sm": "0px 2px 8px 0px rgba(0, 0, 0, 0.03)",
+    "card": "0px 4px 16px 0px rgba(0, 0, 0, 0.04)",
+    "card-hover": "0px 12px 28px 0px rgba(0, 0, 0, 0.08)",
+    "modal": "0px 16px 32px 0px rgba(13, 14, 37, 0.2)"
+  }
+}

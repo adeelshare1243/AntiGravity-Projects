@@ -1,0 +1,55 @@
+<svg width="194" height="206" viewBox="0 0 194 206" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Subtle Soft Outer Glow -->
+  <circle cx="97" cy="103" r="80" fill="#FFF9F5"/>
+  
+  <!-- Main Device / Card Shadow & Base Container -->
+  <g filter="url(#drop_shadow_39427)">
+    <rect x="42" y="28" width="110" height="150" rx="22" fill="#FFFFFF" stroke="#F1F5F9" stroke-width="2"/>
+  </g>
+  
+  <!-- Smartphone Screen Glass Header -->
+  <rect x="54" y="42" width="86" height="122" rx="14" fill="#F8FAFC"/>
+  <rect x="79" y="48" width="36" height="4" rx="2" fill="#E2E8F0"/>
+  
+  <!-- Central Microchip Icon / Badge -->
+  <g filter="url(#chip_shadow)">
+    <rect x="71" y="68" width="52" height="52" rx="14" fill="#FD521B"/>
+    <!-- Chip Contact Lines -->
+    <path d="M85 84H109" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    <path d="M85 92H103" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    <path d="M85 100H109" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="111" cy="92" r="3" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Magnifying Search Glass Accent Over Illustration -->
+  <g filter="url(#search_shadow)">
+    <circle cx="122" cy="136" r="16" fill="#252F4A" stroke="#FFFFFF" stroke-width="3"/>
+    <circle cx="122" cy="136" r="7" stroke="#FFFFFF" stroke-width="2.5"/>
+    <path d="M133 147L143 157" stroke="#252F4A" stroke-width="4" stroke-linecap="round"/>
+    <path d="M133 147L143 157" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Small Floating Sparkles -->
+  <circle cx="48" cy="56" r="3" fill="#FD521B" opacity="0.6"/>
+  <circle cx="152" cy="74" r="4" fill="#FD521B" opacity="0.4"/>
+  <circle cx="44" cy="148" r="2.5" fill="#252F4A" opacity="0.3"/>
+
+  <defs>
+    <filter id="drop_shadow_39427" x="32" y="22" width="130" height="170" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="8"/>
+      <feGaussianBlur stdDeviation="5"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0470588 0 0 0 0 0.0470588 0 0 0 0 0.0509804 0 0 0 0.08 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_39427"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_39427" result="shape"/>
+    </filter>
+    <filter id="chip_shadow" x="65" y="64" width="64" height="64" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#FD521B" flood-opacity="0.3"/>
+    </filter>
+    <filter id="search_shadow" x="101" y="115" width="47" height="47" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#000000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+</svg>
