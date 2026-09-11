@@ -1,0 +1,368 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Optional: Use if using Supabase connection pooling
+}
+
+// 1. Providers / Suppliers (e.g., eSIM Go, 1GLOBAL, Airalo)
+model Supplier {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String    @unique // "eSIM Go", "1GLOBAL", "Airalo"
+  isActive          Boolean   @default(true)
+  totalDestinations Int       @default(0)
+  totalPackages     Int       @default(0)
+  lastSyncAt        DateTime?
+  apiConfig         Json? // Optional: store non-sensitive config
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  packages UnifiedPackage[]
+}
+
+// 2. Destinations (Countries / Regions)
+model Destination {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String // "Turkey", "Europe"
+  slug               String?  @unique
+  isoCode            String   @unique // "TR", "EU"
+  type               String // "country", "region", "global"
+  flagUrl            String? // URL to circle-flag CDN
+  bannerUrl          String? // URL to destination banner image from provider
+  supportedProviders String[] @default([])
+  createdAt          DateTime @default(now())
+
+  packages UnifiedPackage[]
+  reviews  Review[]
+}
+
+// 3. Unified Packages (The Abstraction Layer)
+model UnifiedPackage {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  supplierId    String      @db.Uuid
+  supplier      Supplier    @relation(fields: [supplierId], references: [id])
+  destinationId String      @db.Uuid
+  destination   Destination @relation(fields: [destinationId], references: [id])
+
+  // External Provider IDs
+  supplierPackageId String // e.g., "esim_go_tr_10gb_30d"
+  supplierName      String? // e.g., "eSIM Go", "Airalo"
+  destinationName   String? // e.g., "Turkey", "United States"
+
+  // Package Details
+  dataAmountMB     Int // e.g., 10240 for 10GB
+  validityDays     Int // e.g., 30
+  networkType      String // e.g., "5G/4G/LTE"
+  isUnlimited      Boolean @default(false)
+  isTopUpSupported Boolean @default(true)
+
+  // Pricing
+  wholesaleCostUSD Float // What we pay the provider
+  retailPriceUSD   Float // What the user pays
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@unique([supplierId, supplierPackageId])
+}
+
+// 4. User Table
+model User {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String   @unique
+  name         String?
+  fullName         String?
+  authProvider     String?
+  stripeCustomerId String?  @unique
+  phoneNumber      String?
+  marketingConsent Boolean  @default(false)
+  status           String   @default("ACTIVE")
+  referralCode     String?  @unique
+  walletBalance    Float    @default(0)
+  referredBy       String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  orders        Order[]
+  reviews       Review[]
+  referralCodes ReferralCode[]
+  userEsims     UserEsim[]
+  referralsMade     Referral[] @relation("UserReferrer")
+  referralsReceived Referral[] @relation("UserReferred")
+}
+
+// 5. Order Table
+model Order {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String         @db.Uuid
+  user            User           @relation(fields: [userId], references: [id])
+  packageId       String         @db.Uuid
+  package         UnifiedPackage @relation(fields: [packageId], references: [id])
+  totalAmount     Float
+  currency        String         @default("USD")
+  status          String         @default("PENDING") // PENDING, COMPLETED, FAILED, CANCELLED
+  stripeSessionId String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  userEsims UserEsim[]
+}
+
+// 6. User eSIM Profiles & Fulfillment
+model UserEsim {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String  @db.Uuid
+  user           User    @relation(fields: [userId], references: [id])
+  orderId        String? @db.Uuid
+  order          Order?  @relation(fields: [orderId], references: [id])
+  iccid          String  @unique
+  apn            String?
+  smdpAddress    String?
+  activationCode String?
+  qrCodeUrl      String?
+
+  status    String  @default("pending") // pending, active, expired
+  installed Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 7. Referral Code Table (Marketing)
+model ReferralCode {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code            String   @unique
+  discountPercent Int
+  ownerId         String   @db.Uuid
+  owner           User     @relation(fields: [ownerId], references: [id])
+  usageCount      Int      @default(0)
+  createdAt       DateTime @default(now())
+}
+
+// 8. Reviews Table
+model Review {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String      @db.Uuid
+  user          User        @relation(fields: [userId], references: [id])
+  destinationId String      @db.Uuid
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  rating        Int
+  comment       String?
+  createdAt     DateTime    @default(now())
+}
+
+// 9. Category Table (Headless CMS)
+model Category {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  slug      String   @unique
+  type      String // "BLOG" or "HELP"
+  createdAt DateTime @default(now())
+
+  articles Article[]
+  helpDocs HelpDoc[]
+}
+
+// 10. Article Table (Blog CMS)
+model Article {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title         String
+  slug          String   @unique
+  content       String   @db.Text
+  coverImageUrl String?
+  categoryId    String   @db.Uuid
+  category      Category @relation(fields: [categoryId], references: [id])
+  isPublished   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 11. HelpDoc Table (Support CMS)
+model HelpDoc {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title      String
+  slug       String   @unique
+  content    String   @db.Text
+  categoryId String   @db.Uuid
+  category   Category @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// --- ENUMS ---
+enum AdminRole {
+  SUPERADMIN
+  SUPPORT
+  EDITOR
+  CUSTOM
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// --- ADMIN USERS (TEAM & ROLES) ---
+model AdminUser {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  firstName   String
+  lastName    String
+  role        AdminRole @default(SUPPORT)
+  permissions Json?     // Stores custom access: { "orders": true, "blog": false }
+  lastActive  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations: One Admin can write many posts/articles
+  blogPosts    BlogPost[]
+  helpArticles HelpArticle[]
+}
+
+// --- BLOG CMS ---
+model BlogCategory {
+  id        String     @id @default(uuid())
+  title     String
+  slug      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  posts     BlogPost[]
+}
+
+model BlogPost {
+  id            String        @id @default(uuid())
+  title         String
+  slug          String        @unique
+  content       String        @db.Text
+  featuredImage String?
+  metaTitle     String?
+  metaDesc      String?
+  status        ContentStatus @default(DRAFT)
+  publishDate   DateTime      @default(now())
+  
+  // Foreign Keys
+  authorId      String
+  author        AdminUser     @relation(fields: [authorId], references: [id])
+  categoryId    String?
+  category      BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// --- HELP CENTER CMS ---
+model HelpCategory {
+  id          String        @id @default(uuid())
+  title       String
+  subtitle    String?
+  slug        String        @unique
+  icon        String?       // Stores the library icon name or SVG URL
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  articles    HelpArticle[]
+}
+
+model HelpArticle {
+  id          String        @id @default(uuid())
+  title       String
+  slug        String        @unique
+  content     String        @db.Text
+  metaTitle   String?
+  metaDesc    String?
+  status      ContentStatus @default(DRAFT)
+  publishDate DateTime      @default(now())
+  
+  // Foreign Keys
+  authorId    String
+  author      AdminUser     @relation(fields: [authorId], references: [id])
+  categoryId  String?
+  category    HelpCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// 12. Payment Gateway Configuration (Stripe & PayPal)
+model PaymentGateway {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider      String   @unique // 'STRIPE' or 'PAYPAL'
+  publicKey     String?
+  secretKey     String?
+  webhookSecret String?
+  isActive      Boolean  @default(false)
+  environment   String   @default("sandbox") // 'sandbox' or 'live'
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 13. Marketing: Promo Codes
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model PromoCode {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code          String       @unique
+  type          DiscountType @default(PERCENTAGE)
+  discountValue Float
+  maxUses       Int?
+  usesCount     Int          @default(0)
+  startDate     DateTime     @default(now())
+  endDate       DateTime?
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+// 14. Marketing: Referrals
+enum ReferralStatus {
+  PENDING
+  COMPLETED
+  VOIDED
+}
+
+model Referral {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  referrerId     String         @db.Uuid
+  referrer       User           @relation("UserReferrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referredUserId String         @db.Uuid
+  referredUser   User           @relation("UserReferred", fields: [referredUserId], references: [id], onDelete: Cascade)
+  rewardAmount   Float
+  status         ReferralStatus @default(PENDING)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model ReferralSettings {
+  id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  referralRewardAmount    Float    @default(5.0)
+  referralDiscountAmount  Float    @default(10.0)
+  isReferralProgramActive Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+// 15. Analytics, Tracking & Custom Head Scripts
+model AnalyticsSettings {
+  id                String   @id @default("default")
+  gaMeasurementId   String?
+  metaPixelId       String?
+  tiktokPixelId     String?
+  googleAdsId       String?
+  searchConsoleTag  String?  @db.Text
+  customHeadScripts String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+
+

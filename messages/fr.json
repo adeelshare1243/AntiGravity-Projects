@@ -1,0 +1,13 @@
+{
+  "HomePage": {
+    "title": "Vous partez quelque part ?",
+    "subtitle": "Obtenez des données eSIM internationales instantanées sans frais d'itinérance dans plus de 190 pays."
+  },
+  "Navigation": {
+    "home": "Accueil",
+    "destinations": "Destinations",
+    "howItWorks": "Comment ça marche",
+    "help": "Aide",
+    "account": "Mon Compte"
+  }
+}

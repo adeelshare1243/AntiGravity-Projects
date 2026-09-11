@@ -1,0 +1,17 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <mask id="gr-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+    <circle cx="12" cy="12" r="12" fill="#FFFFFF"/>
+  </mask>
+  <g mask="url(#gr-mask)">
+    <rect width="24" height="24" fill="#0D5EAF"/>
+    <!-- 9 stripes (height 24/9 = 2.67) -->
+    <rect y="2.67" width="24" height="2.67" fill="#FFFFFF"/>
+    <rect y="8.0" width="24" height="2.67" fill="#FFFFFF"/>
+    <rect y="13.33" width="24" height="2.67" fill="#FFFFFF"/>
+    <rect y="18.67" width="24" height="2.67" fill="#FFFFFF"/>
+    <!-- Canton (top left 10x13.33) -->
+    <rect width="11" height="13.33" fill="#0D5EAF"/>
+    <rect x="4.25" width="2.5" height="13.33" fill="#FFFFFF"/>
+    <rect y="5.4" width="11" height="2.5" fill="#FFFFFF"/>
+  </g>
+</svg>

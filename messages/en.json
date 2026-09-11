@@ -1,0 +1,13 @@
+{
+  "HomePage": {
+    "title": "Going Somewhere?",
+    "subtitle": "Get instant international eSIM data with zero roaming fees in 190+ countries."
+  },
+  "Navigation": {
+    "home": "Home",
+    "destinations": "Destinations",
+    "howItWorks": "How It Works",
+    "help": "Help",
+    "account": "My Account"
+  }
+}

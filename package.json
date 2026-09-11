@@ -6,13 +6,19 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "sync": "tsx --env-file=.env scripts/sync-catalogs.ts"
   },
   "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.3",
     "lucide-react": "^1.28.0",
     "next": "16.2.12",
+    "next-intl": "^4.14.1",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "stripe": "^22.6.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -21,6 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
+    "prisma": "^6.4.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

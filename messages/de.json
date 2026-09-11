@@ -1,0 +1,13 @@
+{
+  "HomePage": {
+    "title": "Wohin geht die Reise?",
+    "subtitle": "Erhalten Sie sofortiges internationales eSIM-Datenvolumen ohne Roaming-Gebühren in über 190 Ländern."
+  },
+  "Navigation": {
+    "home": "Startseite",
+    "destinations": "Reiseziele",
+    "howItWorks": "So Funktioniert Es",
+    "help": "Hilfe",
+    "account": "Mein Konto"
+  }
+}

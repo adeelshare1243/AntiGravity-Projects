@@ -1,7 +1,7 @@
 export type Role = 'customer' | 'admin' | 'superadmin';
 export type OrderStatus = 'pending' | 'active' | 'completed' | 'failed' | 'refunded';
 export type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY';
-export type Language = 'en' | 'es' | 'de' | 'fr' | 'ja' | 'tr';
+export type Language = 'en' | 'tr' | 'es' | 'ar' | 'de' | 'fr';
 
 export interface User {
   id: string;

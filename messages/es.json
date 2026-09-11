@@ -1,0 +1,13 @@
+{
+  "HomePage": {
+    "title": "¿Vas a algún lugar?",
+    "subtitle": "Obtenga datos eSIM internacionales instantáneos sin cargos de roaming en más de 190 países."
+  },
+  "Navigation": {
+    "home": "Inicio",
+    "destinations": "Destinos",
+    "howItWorks": "Cómo Funciona",
+    "help": "Ayuda",
+    "account": "Mi Cuenta"
+  }
+}

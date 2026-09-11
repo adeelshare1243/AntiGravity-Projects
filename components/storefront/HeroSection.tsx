@@ -2,25 +2,55 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
 import DeviceCheckerModal from './DeviceCheckerModal';
 import { useESim } from '@/context/ESimContext';
 import { TrendingUp, ChevronRight } from 'lucide-react';
 
-const POPULAR_SEARCH_DESTINATIONS = [
-  { name: 'Thailand', slug: 'thailand', code: 'th', plansCount: 11, price: '$2.20' },
-  { name: 'Saudi Arabia', slug: 'saudi-arabia', code: 'sa', plansCount: 8, price: '$3.30' },
-  { name: 'Canada', slug: 'canada', code: 'ca', plansCount: 12, price: '$3.30' },
-  { name: 'United Arab Emirates', slug: 'united-arab-emirates', code: 'ae', plansCount: 10, price: '$3.30' },
-  { name: 'United Kingdom', slug: 'united-kingdom', code: 'gb', plansCount: 15, price: '$2.20' },
-  { name: 'United States', slug: 'united-states', code: 'us', plansCount: 20, price: '$3.30' },
-];
+interface DestinationSearchResult {
+  id: string;
+  name: string;
+  slug: string;
+  isoCode: string;
+  flagUrl: string;
+  planCount: number;
+  startingPrice: string | null;
+}
+
+// Curated slugs shown when the search box is empty (popular destinations)
+const POPULAR_SLUGS = ['thailand', 'saudi-arabia', 'canada', 'united-arab-emirates', 'united-kingdom', 'united-states'];
 
 export const HeroSection: React.FC = () => {
+  const t = useTranslations('HomePage');
+  const locale = useLocale();
   const { currency } = useESim();
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [isDeviceCheckerOpen, setIsDeviceCheckerOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Live destination data from DB
+  const [destinations, setDestinations] = useState<DestinationSearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch('/api/destinations/search')
+      .then((r) => r.json())
+      .then((data: DestinationSearchResult[]) => setDestinations(Array.isArray(data) ? data : []))
+      .catch(() => setDestinations([]))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  // When query is empty show curated popular destinations; otherwise filter by name
+  const filteredDestinations: DestinationSearchResult[] =
+    query.trim() === ''
+      ? destinations
+          .filter((d) => POPULAR_SLUGS.includes(d.slug))
+          .sort((a, b) => POPULAR_SLUGS.indexOf(a.slug) - POPULAR_SLUGS.indexOf(b.slug))
+      : destinations.filter((d) =>
+          d.name.toLowerCase().includes(query.toLowerCase()),
+        );
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -57,11 +87,11 @@ export const HeroSection: React.FC = () => {
 
             <div className="relative z-20 flex flex-col items-center gap-[28px] px-[24px] py-[48px] text-center max-w-[612px]">
               <h1 className="text-[32px] sm:text-[44px] lg:text-[52px] font-[700] leading-[1.2em] text-[#FFFFFF] tracking-tight">
-                Going Somewhere? Stay Connected with eSIM
+                {t('title')}
               </h1>
 
               <p className="text-[16px] font-[500] leading-[1.4em] text-[#FFFFFF] max-w-[450px]">
-                Fast international eSIM data with zero roaming fees. Activate instantly and stay connected worldwide.
+                {t('subtitle')}
               </p>
 
               {/* 1. SEARCH BAR WRAPPER */}
@@ -91,43 +121,49 @@ export const HeroSection: React.FC = () => {
 
                     {/* Destinations List */}
                     <div className="flex flex-col gap-1 px-4 py-3 overflow-y-auto max-h-[360px]">
-                      {POPULAR_SEARCH_DESTINATIONS.filter((item) =>
-                        item.name.toLowerCase().includes(query.toLowerCase())
-                      ).map((country) => (
-                        <Link
-                          key={country.slug}
-                          href={`/destinations/${country.slug}`}
-                          onClick={() => setIsFocused(false)}
-                          className="flex justify-between items-center p-3 rounded-[16px] hover:bg-[#F7F7F7] cursor-pointer group transition-colors"
-                        >
-                          {/* Left Side */}
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-white rounded-[10px] flex items-center justify-center shadow-xs border border-slate-100 shrink-0">
-                              <img
-                                src={`https://hatscripts.github.io/circle-flags/flags/${country.code}.svg`}
-                                alt={country.name}
-                                className="w-6 h-6 rounded-full object-cover"
-                              />
+                      {filteredDestinations.length === 0 && !isLoading ? (
+                        <p className="text-[13px] text-[#4B5675] font-medium px-3 py-4">
+                          No destinations found matching &quot;{query}&quot;
+                        </p>
+                      ) : (
+                        filteredDestinations.map((dest) => (
+                          <Link
+                            key={dest.slug}
+                            href={`/${locale}/destinations/${dest.slug}`}
+                            onClick={() => setIsFocused(false)}
+                            className="flex justify-between items-center p-3 rounded-[16px] hover:bg-[#F7F7F7] cursor-pointer group transition-colors"
+                          >
+                            {/* Left Side */}
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 bg-white rounded-[10px] flex items-center justify-center shadow-xs border border-slate-100 shrink-0">
+                                <img
+                                  src={dest.flagUrl}
+                                  alt={dest.name}
+                                  className="w-6 h-6 rounded-full object-cover"
+                                />
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-[16px] font-medium text-[#0C0C0D] group-hover:text-[#FD521B] transition-colors">
+                                  {dest.name}
+                                </span>
+                                <span className="text-[12px] text-[#4B5675]">
+                                  {dest.planCount} plans{dest.startingPrice ? ` · ${dest.startingPrice}` : ''}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex flex-col">
-                              <span className="text-[16px] font-medium text-[#0C0C0D] group-hover:text-[#FD521B] transition-colors">
-                                {country.name}
-                              </span>
-                              <span className="text-[12px] text-[#4B5675]">
-                                {country.plansCount} plans · {country.price}
-                              </span>
-                            </div>
-                          </div>
 
-                          {/* Right Side */}
-                          <div className="flex items-center gap-3">
-                            <div className="bg-white group-hover:bg-white rounded-[8px] px-3 py-1.5 shadow-2xs border border-slate-100">
-                              <span className="text-[12px] text-[#252F4A]">From {country.price}</span>
+                            {/* Right Side */}
+                            <div className="flex items-center gap-3">
+                              {dest.startingPrice && (
+                                <div className="bg-white group-hover:bg-white rounded-[8px] px-3 py-1.5 shadow-2xs border border-slate-100">
+                                  <span className="text-[12px] text-[#252F4A]">From {dest.startingPrice}</span>
+                                </div>
+                              )}
+                              <ChevronRight className="w-4 h-4 text-black group-hover:translate-x-0.5 transition-transform" />
                             </div>
-                            <ChevronRight className="w-4 h-4 text-black group-hover:translate-x-0.5 transition-transform" />
-                          </div>
-                        </Link>
-                      ))}
+                          </Link>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}

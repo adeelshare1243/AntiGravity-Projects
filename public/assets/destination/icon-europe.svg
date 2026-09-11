@@ -1,0 +1,38 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="eu-circle">
+      <circle cx="24" cy="24" r="24"/>
+    </clipPath>
+    <g id="eu-star">
+      <polygon points="0,-2.6 0.76,-0.8 2.5,-0.8 1.1,0.2 1.6,2.0 0,0.9 -1.6,2.0 -1.1,0.2 -2.5,-0.8 -0.76,-0.8" fill="#FFCC00"/>
+    </g>
+  </defs>
+  <g clip-path="url(#eu-circle)">
+    <rect width="48" height="48" fill="#003399"/>
+    <!-- 12 stars at radius 14 from center (24, 24) -->
+    <!-- 12 o'clock (0 deg) -->
+    <use href="#eu-star" x="24.0" y="10.0"/>
+    <!-- 1 o'clock (30 deg) -->
+    <use href="#eu-star" x="31.0" y="11.9"/>
+    <!-- 2 o'clock (60 deg) -->
+    <use href="#eu-star" x="36.1" y="17.0"/>
+    <!-- 3 o'clock (90 deg) -->
+    <use href="#eu-star" x="38.0" y="24.0"/>
+    <!-- 4 o'clock (120 deg) -->
+    <use href="#eu-star" x="36.1" y="31.0"/>
+    <!-- 5 o'clock (150 deg) -->
+    <use href="#eu-star" x="31.0" y="36.1"/>
+    <!-- 6 o'clock (180 deg) -->
+    <use href="#eu-star" x="24.0" y="38.0"/>
+    <!-- 7 o'clock (210 deg) -->
+    <use href="#eu-star" x="17.0" y="36.1"/>
+    <!-- 8 o'clock (240 deg) -->
+    <use href="#eu-star" x="11.9" y="31.0"/>
+    <!-- 9 o'clock (270 deg) -->
+    <use href="#eu-star" x="10.0" y="24.0"/>
+    <!-- 10 o'clock (300 deg) -->
+    <use href="#eu-star" x="11.9" y="17.0"/>
+    <!-- 11 o'clock (330 deg) -->
+    <use href="#eu-star" x="17.0" y="11.9"/>
+  </g>
+</svg>
