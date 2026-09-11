@@ -333,3 +333,38 @@ export async function deleteHelpCategory(id: string) {
     return { success: false, error: error.message };
   }
 }
+
+// ==========================================
+// 4. STORE SETTINGS & PROFIT MARGINS
+// ==========================================
+
+export async function getStoreSettings() {
+  try {
+    const settings = await prisma.storeSettings.findFirst();
+    return settings || { id: 'default', globalProfitMargin: 25.0 };
+  } catch (error) {
+    console.error('Error fetching store settings:', error);
+    return { id: 'default', globalProfitMargin: 25.0 };
+  }
+}
+
+export async function updateProfitMargin(newMargin: number) {
+  try {
+    const margin = Number(newMargin);
+    if (isNaN(margin) || margin < 0) {
+      return { success: false, error: 'Invalid profit margin percentage' };
+    }
+
+    const settings = await prisma.storeSettings.upsert({
+      where: { id: 'default' },
+      update: { globalProfitMargin: margin },
+      create: { id: 'default', globalProfitMargin: margin },
+    });
+
+    revalidatePath('/admin/destinations');
+    return { success: true, settings };
+  } catch (error: any) {
+    console.error('Error updating profit margin:', error);
+    return { success: false, error: error.message || 'Failed to update profit margin' };
+  }
+}

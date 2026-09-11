@@ -61,7 +61,10 @@ export async function syncEsimGoCatalog(options: SyncOptions = {}): Promise<Sync
   let destinationsSynced = 0
   let processed = 0
 
-  const marginPercentage = options.marginPercentage ?? 0.25
+  // Fetch dynamic global profit margin from Prisma StoreSettings
+  const settings = await prisma.storeSettings.findFirst()
+  const margin = settings?.globalProfitMargin ?? 25
+  const marginPercentage = options.marginPercentage ?? (margin / 100)
   const minimumMarkupUSD = options.minimumMarkupUSD ?? 2.0
   const batchSize = options.batchSize ?? 50
 

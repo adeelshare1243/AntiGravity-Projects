@@ -11,6 +11,8 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import ProfitMarginInput from '@/components/admin/ProfitMarginInput';
+import ManualSyncButton from '@/components/admin/ManualSyncButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,8 +47,8 @@ export default async function AdminDestinationsPage({
       }
     : {};
 
-  // Phase 1: Database Fetching with Relational Count & Pagination
-  const [totalCount, destinations] = await Promise.all([
+  // Phase 1: Database Fetching with Relational Count, Store Settings & Pagination
+  const [totalCount, destinations, storeSettings] = await Promise.all([
     prisma.destination.count({ where }),
     prisma.destination.findMany({
       where,
@@ -67,7 +69,10 @@ export default async function AdminDestinationsPage({
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
     }),
+    prisma.storeSettings.findFirst(),
   ]);
+
+  const globalProfitMargin = storeSettings?.globalProfitMargin ?? 25.0;
 
   const totalPages = Math.ceil(totalCount / pageSize);
   const startItem = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
@@ -115,6 +120,9 @@ export default async function AdminDestinationsPage({
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Global Dynamic Margin Control */}
+          <ProfitMarginInput initialMargin={globalProfitMargin} />
+
           {/* Search Form */}
           <form method="GET" className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -128,14 +136,7 @@ export default async function AdminDestinationsPage({
           </form>
 
           {/* Secondary Action: Manual API Sync */}
-          <button
-            type="button"
-            title="Trigger on-demand background sync from providers"
-            className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer shrink-0"
-          >
-            <RefreshCw className="w-4 h-4 text-gray-500" />
-            <span>Manual API Sync</span>
-          </button>
+          <ManualSyncButton />
         </div>
       </div>
 

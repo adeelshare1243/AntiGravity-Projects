@@ -7,6 +7,8 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import AnalyticsInjector, { AnalyticsHeadInjector } from "@/components/global/AnalyticsInjector";
+import Script from "next/script";
+import ChatbaseIdentifier from "@/components/global/ChatbaseIdentifier";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,6 +64,14 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <ESimProvider>{children}</ESimProvider>
         </NextIntlClientProvider>
+        <ChatbaseIdentifier />
+        <Script
+          id="chatbase-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="O6LXpjBPsD0d8_TCTfBHP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();`,
+          }}
+        />
       </body>
     </html>
   );
